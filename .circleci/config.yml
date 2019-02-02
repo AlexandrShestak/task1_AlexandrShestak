@@ -10,9 +10,9 @@ jobs:
     - checkout
     - restore_cache:
         key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
-    #      - run:
-    #         name: Chmod permissions #if permission for Gradlew Dependencies fail, use this.
-    #         command: sudo chmod +x ./gradlew
+    - run:
+       name: Chmod permissions #if permission for Gradlew Dependencies fail, use this.
+       command: sudo chmod +x ./gradlew
     - run:
         name: Download Dependencies
         command: ./gradlew androidDependencies
@@ -35,3 +35,9 @@ jobs:
     - store_artifacts: # for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
         path: app/build/outputs/apk
         destination: release
+    - deploy:
+        name: Deploy APK.
+        command: |
+          if [ "${CIRCLE_BRANCH}" != "master" ]; then
+            bash ./scripts/deploy-fabric.sh
+          fi
