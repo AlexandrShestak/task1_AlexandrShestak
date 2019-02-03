@@ -20,6 +20,20 @@ allprojects {
         jcenter()
         
     }
+    apply plugin: 'checkstyle'
+    checkstyle {
+        toolVersion '7.8.1'
+    }
+    task checkstyle(type: Checkstyle) {
+        configFile new File(rootDir, "config/checkstyle/checkstyle.xml")
+        source 'src'
+        include '**/*.java'
+        exclude '**/gen/**'
+        exclude '**/R.java'
+        exclude '**/BuildConfig.java'
+        classpath = files()
+    }
+
 }
 
 task clean(type: Delete) {
