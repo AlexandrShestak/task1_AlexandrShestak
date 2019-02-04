@@ -19,6 +19,15 @@ jobs:
     - run:
         name: Run Checkstyle
         command: ./gradlew checkstyle
+    - run:
+        name: Run findbugs
+        command: ./gradlew findbugs
+    - run:
+        name: Run PMD
+        command: ./gradlew pmd
+    - run:
+        name: Run Lint
+        command: ./gradlew lint
     - save_cache:
         paths:
         - ~/.gradle
