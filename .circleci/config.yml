@@ -2,26 +2,36 @@ version: 2
 executors:
   my-executor:
     working_directory: ~/code
-      docker:
-      - image: circleci/android:api-28-alpha
-      environment:
-        JVM_OPTS: -Xmx3200m
-      steps:
-      - checkout
-      - restore_cache:
-          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
-      - run:
-          name: Chmod permissions #if permission for Gradlew Dependencies fail, use this.
-          command: sudo chmod +x ./gradlew
-      - run:
-          name: Download Dependencies
-          command: ./gradlew androidDependencies
-
-jobs:
-  checkstyle:
-    executor: my-executor
+    docker:
+    - image: circleci/android:api-28-alpha
     environment:
       JVM_OPTS: -Xmx3200m
+    steps:
+    - checkout
+    - restore_cache:
+        key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+    - run:
+        name: Chmod permissions #if permission for Gradlew Dependencies fail, use this.
+        command: sudo chmod +x ./gradlew
+    - run:
+        name: Download Dependencies
+        command: ./gradlew androidDependencies
+
+jobs:
+  checkout_code:
+    executor: my-executor
+    steps:
+    - checkout
+    - restore_cache:
+        key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+    - run:
+        name: Chmod permissions #if permission for Gradlew Dependencies fail, use this.
+        command: sudo chmod +x ./gradlew
+    - run:
+        name: Download Dependencies
+        command: ./gradlew androidDependencies
+  checkstyle:
+    executor: my-executor
     steps:
     - run:
         name: Run Checkstyle
@@ -78,11 +88,22 @@ workflows:
   version: 2
   build-test-and-deploy:
     jobs:
+      - checkout_code
       - checkstyle:
+          requires:
+          - checkout_code
       - findbugs:
+          requires:
+          - checkout_code
       - PMD:
+          requires:
+          - checkout_code
       - Lint:
+          requires:
+          - checkout_code
       - run_tests:
+          requires:
+          - checkout_code
       - build_deploy:
           requires:
             - checkstyle
