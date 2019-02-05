@@ -1,24 +1,25 @@
 version: 2
-jobs:
-  prepare:
+executors:
+  my-executor:
     working_directory: ~/code
-    docker:
-    - image: circleci/android:api-28-alpha
-    environment:
-      JVM_OPTS: -Xmx3200m
-    steps:
-    - checkout
-    - restore_cache:
-        key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
-    - run:
-       name: Chmod permissions #if permission for Gradlew Dependencies fail, use this.
-       command: sudo chmod +x ./gradlew
-    - run:
-        name: Download Dependencies
-        command: ./gradlew androidDependencies
+      docker:
+      - image: circleci/android:api-28-alpha
+      environment:
+        JVM_OPTS: -Xmx3200m
+      steps:
+      - checkout
+      - restore_cache:
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+      - run:
+          name: Chmod permissions #if permission for Gradlew Dependencies fail, use this.
+          command: sudo chmod +x ./gradlew
+      - run:
+          name: Download Dependencies
+          command: ./gradlew androidDependencies
+
+jobs:
   checkstyle:
-    docker:
-    - image: circleci/android:api-28-alpha
+    executor: my-executor
     environment:
       JVM_OPTS: -Xmx3200m
     steps:
@@ -26,46 +27,30 @@ jobs:
         name: Run Checkstyle
         command: ./gradlew checkstyle
   findbugs:
-    docker:
-    - image: circleci/android:api-28-alpha
-    environment:
-      JVM_OPTS: -Xmx3200m
+    executor: my-executor
     steps:
     - run:
         name: Run findbugs
         command: ./gradlew findbugs
   PMD:
-    docker:
-    - image: circleci/android:api-28-alpha
-    environment:
-      JVM_OPTS: -Xmx3200m
+    executor: my-executor
     steps:
     - run:
         name: Run PMD
         command: ./gradlew pmd
   Lint:
-    docker:
-    - image: circleci/android:api-28-alpha
-    environment:
-      JVM_OPTS: -Xmx3200m
-    steps:
+    executor: my-executor
     - run:
         name: Run Lint
         command: ./gradlew lint
   run_tests:
-    docker:
-    - image: circleci/android:api-28-alpha
-    environment:
-      JVM_OPTS: -Xmx3200m
+    executor: my-executor
     steps:
     - run:
         name: Run Tests
         command: ./gradlew lint test
   build_deploy:
-    docker:
-    - image: circleci/android:api-28-alpha
-    environment:
-      JVM_OPTS: -Xmx3200m
+    executor: my-executor
     steps:
     - save_cache:
         paths:
@@ -93,22 +78,11 @@ workflows:
   version: 2
   build-test-and-deploy:
     jobs:
-      - prepare
       - checkstyle:
-          requires:
-            - prepare
       - findbugs:
-          requires:
-            - prepare
       - PMD:
-          requires:
-            - prepare
       - Lint:
-          requires:
-            - prepare
       - run_tests:
-          requires:
-            - prepare
       - build_deploy:
           requires:
             - checkstyle
