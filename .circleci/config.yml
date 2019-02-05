@@ -20,11 +20,13 @@ jobs:
     - run:
         name: Chmod permissions #if permission for Gradlew Dependencies fail, use this.
         command: |
+          cd ~/code
           cd workspace/repo
           sudo chmod +x ./gradlew
     - run:
         name: Download Dependencies
         command: |
+          cd ~/code
           cd workspace/repo
           ./gradlew androidDependencies
     - persist_to_workspace:
@@ -53,6 +55,7 @@ jobs:
     - run:
         name: Run PMD
         command: |
+          cd ~/code
           cd workspace/repo
           ./gradlew pmd
   Lint:
@@ -61,6 +64,7 @@ jobs:
     - run:
         name: Run Lint
         command: |
+          cd ~/code
           cd workspace/repo
           ./gradlew lint
   run_tests:
@@ -69,15 +73,16 @@ jobs:
     - run:
         name: Run Tests
         command: |
+          cd ~/code
           cd workspace/repo
           ./gradlew lint test
   build_deploy:
     executor: my-executor
     steps:
-    - save_cache:
-        paths:
-        - ~/.gradle
-        key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+#    - save_cache:
+#        paths:
+#        - ~/.gradle
+#        key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
     - store_artifacts: # for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
         path: app/build/reports
         destination: reports
@@ -87,6 +92,7 @@ jobs:
     - run:
         name: Build
         command: |
+          cd ~/code
           cd workspace/repo
           ./gradlew assembleRelease
     - store_artifacts: # for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
