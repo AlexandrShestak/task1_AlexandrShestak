@@ -27,6 +27,7 @@ jobs:
         name: Run Checkstyle
         command: |
           cd ~/code
+          ls
           ./gradlew checkstyle
   findbugs:
     executor: my-executor
@@ -35,6 +36,7 @@ jobs:
         name: Run findbugs
         command: |
           cd ~/code
+          ls
           ./gradlew findbugs
   PMD:
     executor: my-executor
@@ -43,6 +45,7 @@ jobs:
         name: Run PMD
         command: |
           cd ~/code
+          ls
           ./gradlew pmd
   Lint:
     executor: my-executor
@@ -51,6 +54,7 @@ jobs:
         name: Run Lint
         command: |
           cd ~/code
+          ls
           ./gradlew lint
   run_tests:
     executor: my-executor
@@ -59,6 +63,7 @@ jobs:
         name: Run Tests
         command: |
           cd ~/code
+          ls
           ./gradlew lint test
   build_deploy:
     executor: my-executor
