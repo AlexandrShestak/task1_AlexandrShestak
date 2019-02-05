@@ -34,6 +34,42 @@ allprojects {
         classpath = files()
     }
 
+    apply plugin: 'pmd'
+
+    task pmd(type: Pmd) {
+        description 'Identifying potential problems mainly dead code, duplicated code, cyclomatic complexity and overcomplicated expressions'
+        group 'verification'
+        ruleSetFiles = files("$project.rootDir/tools/rules-pmd.xml")
+        source = fileTree('src/main/java')
+        include '**/*.java'
+        exclude '**/gen/**'
+
+        reports {
+            xml.enabled = false
+            html.enabled = true
+            html.destination = "$project.buildDir/outputs/pmd/pmd.html"
+        }
+    }
+
+    apply plugin: 'findbugs'
+
+    task findbugs(type: FindBugs) {
+        description 'Find bugs mainly design flaws, bad practices, multithreaded correctness and code vulnerabilities.'
+        group 'verification'
+        excludeFilter = file("$project.rootDir/tools/rules-findbugs.xml")
+        classes = fileTree("$project.buildDir/app/build/intermediates/classes")
+        source = fileTree("$project.buildDir/app/src/main/java")
+        effort 'max'
+        reportLevel = "high"
+        classpath = files()
+
+        reports {
+            xml.enabled = false
+            html.enabled = true
+            html.destination = "$project.buildDir/outputs/findbugs/findbugs.html"
+        }
+    }
+
 }
 
 task clean(type: Delete) {

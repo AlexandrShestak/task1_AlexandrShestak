@@ -11,14 +11,23 @@ jobs:
     - restore_cache:
         key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
     - run:
-       name: Chmod permissions #if permission for Gradlew Dependencies fail, use this.
-       command: sudo chmod +x ./gradlew
+        name: Chmod permissions #if permission for Gradlew Dependencies fail, use this.
+        command: sudo chmod +x ./gradlew
     - run:
         name: Download Dependencies
         command: ./gradlew androidDependencies
     - run:
         name: Run Checkstyle
         command: ./gradlew checkstyle
+    - run:
+        name: Run findbugs
+        command: ./gradlew findbugs
+    - run:
+        name: Run PMD
+        command: ./gradlew pmd
+    - run:
+        name: Run Lint
+        command: ./gradlew lint
     - save_cache:
         paths:
         - ~/.gradle
@@ -41,6 +50,6 @@ jobs:
     - deploy:
         name: Deploy APK.
         command: |
-          if [ "${CIRCLE_BRANCH}" != "master" ]; then
+          if [ "${CIRCLE_BRANCH}" == "master" ]; then
             bash ./scripts/deploy-fabric.sh
           fi
