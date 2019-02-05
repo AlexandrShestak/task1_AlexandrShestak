@@ -20,14 +20,17 @@ jobs:
     - run:
         name: Download Dependencies
         command: ./gradlew androidDependencies
+    - persist_to_workspace:
+        root: workspace
+        paths:
+        - repo
   checkstyle:
     executor: my-executor
     steps:
     - run:
         name: Run Checkstyle
         command: |
-          cd ~/code
-          ls
+          cd workspace/repo
           ./gradlew checkstyle
   findbugs:
     executor: my-executor
@@ -35,8 +38,7 @@ jobs:
     - run:
         name: Run findbugs
         command: |
-          cd ~/code
-          ls
+          cd workspace/repo
           ./gradlew findbugs
   PMD:
     executor: my-executor
@@ -44,8 +46,7 @@ jobs:
     - run:
         name: Run PMD
         command: |
-          cd ~/code
-          ls
+          cd workspace/repo
           ./gradlew pmd
   Lint:
     executor: my-executor
@@ -53,8 +54,7 @@ jobs:
     - run:
         name: Run Lint
         command: |
-          cd ~/code
-          ls
+          cd workspace/repo
           ./gradlew lint
   run_tests:
     executor: my-executor
@@ -62,8 +62,7 @@ jobs:
     - run:
         name: Run Tests
         command: |
-          cd ~/code
-          ls
+          cd workspace/repo
           ./gradlew lint test
   build_deploy:
     executor: my-executor
@@ -81,7 +80,7 @@ jobs:
     - run:
         name: Build
         command: |
-          cd ~/code
+          cd workspace/repo
           ./gradlew assembleRelease
     - store_artifacts: # for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
         path: app/build/outputs/apk
