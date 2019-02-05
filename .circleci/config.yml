@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 executors:
   my-executor:
     working_directory: ~/code
@@ -86,7 +86,7 @@ jobs:
             bash ./scripts/deploy-fabric.sh
           fi
 workflows:
-  version: 2
+  version: 2.1
   build-test-and-deploy:
     jobs:
     - checkout_code
