@@ -17,31 +17,55 @@ jobs:
         name: Download Dependencies
         command: ./gradlew androidDependencies
   checkstyle:
+    docker:
+    - image: circleci/android:api-28-alpha
+    environment:
+      JVM_OPTS: -Xmx3200m
     steps:
     - run:
         name: Run Checkstyle
         command: ./gradlew checkstyle
   findbugs:
+    docker:
+    - image: circleci/android:api-28-alpha
+    environment:
+      JVM_OPTS: -Xmx3200m
     steps:
     - run:
         name: Run findbugs
         command: ./gradlew findbugs
   PMD:
+    docker:
+    - image: circleci/android:api-28-alpha
+    environment:
+      JVM_OPTS: -Xmx3200m
     steps:
     - run:
         name: Run PMD
         command: ./gradlew pmd
   Lint:
+    docker:
+    - image: circleci/android:api-28-alpha
+    environment:
+      JVM_OPTS: -Xmx3200m
     steps:
     - run:
         name: Run Lint
         command: ./gradlew lint
   run_tests:
+    docker:
+    - image: circleci/android:api-28-alpha
+    environment:
+      JVM_OPTS: -Xmx3200m
     steps:
     - run:
         name: Run Tests
         command: ./gradlew lint test
   build_deploy:
+    docker:
+    - image: circleci/android:api-28-alpha
+    environment:
+      JVM_OPTS: -Xmx3200m
     steps:
     - save_cache:
         paths:
