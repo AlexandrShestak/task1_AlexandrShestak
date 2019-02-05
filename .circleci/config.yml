@@ -25,31 +25,41 @@ jobs:
     steps:
     - run:
         name: Run Checkstyle
-        command: ./gradlew checkstyle
+        command: |
+          cd ~/code
+          ./gradlew checkstyle
   findbugs:
     executor: my-executor
     steps:
     - run:
         name: Run findbugs
-        command: ./gradlew findbugs
+        command: |
+          cd ~/code
+          ./gradlew findbugs
   PMD:
     executor: my-executor
     steps:
     - run:
         name: Run PMD
-        command: ./gradlew pmd
+        command: |
+          cd ~/code
+          ./gradlew pmd
   Lint:
     executor: my-executor
     steps:
     - run:
         name: Run Lint
-        command: ./gradlew lint
+        command: |
+          cd ~/code
+          ./gradlew lint
   run_tests:
     executor: my-executor
     steps:
     - run:
         name: Run Tests
-        command: ./gradlew lint test
+        command: |
+          cd ~/code
+          ./gradlew lint test
   build_deploy:
     executor: my-executor
     steps:
@@ -65,7 +75,9 @@ jobs:
     # See https://circleci.com/docs/2.0/deployment-integrations/ for deploy examples
     - run:
         name: Build
-        command: ./gradlew assembleRelease
+        command: |
+          cd ~/code
+          ./gradlew assembleRelease
     - store_artifacts: # for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
         path: app/build/outputs/apk
         destination: release
