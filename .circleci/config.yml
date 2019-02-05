@@ -1,88 +1,40 @@
-version: 2.1
-executors:
-  my-executor:
+version: 2
+jobs:
+  build:
     working_directory: ~/code
     docker:
     - image: circleci/android:api-28-alpha
     environment:
       JVM_OPTS: -Xmx3200m
-
-jobs:
-  checkout_code:
-    executor: my-executor
     steps:
-    - run: mkdir -p workspace
-    - run: mkdir -p repo
-    - checkout:
-        path: workspace/repo
-#    - restore_cache:
-#        key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+    - checkout
+    - restore_cache:
+        key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
     - run:
         name: Chmod permissions #if permission for Gradlew Dependencies fail, use this.
-        command: |
-          cd ~/code
-          cd workspace/repo
-          sudo chmod +x ./gradlew
+        command: sudo chmod +x ./gradlew
     - run:
         name: Download Dependencies
-        command: |
-          cd ~/code
-          cd workspace/repo
-          ./gradlew androidDependencies
-    - persist_to_workspace:
-        root: workspace
-        paths:
-        - repo
-  checkstyle:
-    executor: my-executor
-    steps:
+        command: ./gradlew androidDependencies
     - run:
         name: Run Checkstyle
-        command: |
-          cd workspace/repo
-          ./gradlew checkstyle
-  findbugs:
-    executor: my-executor
-    steps:
+        command: ./gradlew checkstyle
     - run:
         name: Run findbugs
-        command: |
-          cd workspace/repo
-          ./gradlew findbugs
-  PMD:
-    executor: my-executor
-    steps:
+        command: ./gradlew findbugs
     - run:
         name: Run PMD
-        command: |
-          cd ~/code
-          cd workspace/repo
-          ./gradlew pmd
-  Lint:
-    executor: my-executor
-    steps:
+        command: ./gradlew pmd
     - run:
         name: Run Lint
-        command: |
-          cd ~/code
-          cd workspace/repo
-          ./gradlew lint
-  run_tests:
-    executor: my-executor
-    steps:
+        command: ./gradlew lint
+    - save_cache:
+        paths:
+        - ~/.gradle
+        key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
     - run:
         name: Run Tests
-        command: |
-          cd ~/code
-          cd workspace/repo
-          ./gradlew lint test
-  build_deploy:
-    executor: my-executor
-    steps:
-#    - save_cache:
-#        paths:
-#        - ~/.gradle
-#        key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
+        command: ./gradlew lint test
     - store_artifacts: # for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
         path: app/build/reports
         destination: reports
@@ -91,10 +43,7 @@ jobs:
     # See https://circleci.com/docs/2.0/deployment-integrations/ for deploy examples
     - run:
         name: Build
-        command: |
-          cd ~/code
-          cd workspace/repo
-          ./gradlew assembleRelease
+        command: ./gradlew assembleRelease
     - store_artifacts: # for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
         path: app/build/outputs/apk
         destination: release
@@ -104,31 +53,3 @@ jobs:
           if [ "${CIRCLE_BRANCH}" == "master" ]; then
             bash ./scripts/deploy-fabric.sh
           fi
-workflows:
-  version: 2.1
-  build-test-and-deploy:
-    jobs:
-    - checkout_code
-    - checkstyle:
-        requires:
-        - checkout_code
-    - findbugs:
-        requires:
-        - checkout_code
-    - PMD:
-        requires:
-        - checkout_code
-    - Lint:
-        requires:
-        - checkout_code
-    - run_tests:
-        requires:
-        - checkout_code
-    - build_deploy:
-        requires:
-        - checkstyle
-        - findbugs
-        - PMD
-        - Lint
-        - run_tests
-
