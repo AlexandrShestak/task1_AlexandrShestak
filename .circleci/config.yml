@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  prepare:
     working_directory: ~/code
     docker:
     - image: circleci/android:api-28-alpha
@@ -16,25 +16,37 @@ jobs:
     - run:
         name: Download Dependencies
         command: ./gradlew androidDependencies
+  checkstyle:
+    steps:
     - run:
         name: Run Checkstyle
         command: ./gradlew checkstyle
+  findbugs:
+    steps:
     - run:
         name: Run findbugs
         command: ./gradlew findbugs
+  PMD:
+    steps:
     - run:
         name: Run PMD
         command: ./gradlew pmd
+  Lint:
+    steps:
     - run:
         name: Run Lint
         command: ./gradlew lint
+  run_tests:
+    steps:
+    - run:
+        name: Run Tests
+        command: ./gradlew lint test
+  build_deploy:
+    steps:
     - save_cache:
         paths:
         - ~/.gradle
         key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
-    - run:
-        name: Run Tests
-        command: ./gradlew lint test
     - store_artifacts: # for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
         path: app/build/reports
         destination: reports
@@ -53,3 +65,31 @@ jobs:
           if [ "${CIRCLE_BRANCH}" == "master" ]; then
             bash ./scripts/deploy-fabric.sh
           fi
+workflows:
+  version: 2
+  build-test-and-deploy:
+    jobs:
+      - prepare
+      - checkstyle
+          requires:
+            - prepare
+      - findbugs
+          requires:
+            - prepare
+      - PMD
+          requires:
+            - prepare
+      - Lint
+          requires:
+            - prepare
+      - run_tests
+          requires:
+            - prepare
+      - build_deploy:
+          requires:
+            - checkstyle
+            - findbugs
+            - PMD
+            - Lint
+            - run_tests
+
