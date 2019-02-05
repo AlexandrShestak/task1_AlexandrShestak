@@ -70,19 +70,19 @@ workflows:
   build-test-and-deploy:
     jobs:
       - prepare
-      - checkstyle
+      - checkstyle:
           requires:
             - prepare
-      - findbugs
+      - findbugs:
           requires:
             - prepare
-      - PMD
+      - PMD:
           requires:
             - prepare
-      - Lint
+      - Lint:
           requires:
             - prepare
-      - run_tests
+      - run_tests:
           requires:
             - prepare
       - build_deploy:
