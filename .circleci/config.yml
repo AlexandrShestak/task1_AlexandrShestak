@@ -24,7 +24,9 @@ jobs:
           sudo chmod +x ./gradlew
     - run:
         name: Download Dependencies
-        command: ./gradlew androidDependencies
+        command: |
+          cd workspace/repo
+          ./gradlew androidDependencies
     - persist_to_workspace:
         root: workspace
         paths:
