@@ -11,7 +11,10 @@ jobs:
   checkout_code:
     executor: my-executor
     steps:
-    - checkout
+    - run: mkdir -p workspace
+    - run: mkdir -p repo
+    - checkout:
+        path: workspace/repo
     - restore_cache:
         key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}
     - run:
